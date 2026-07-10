@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="BES.xsd">
+	<Analysis>
+		<Title>SiteCacher Status</Title>
+		<Description>This analysis works in conjunction with the SiteCacher Task. </Description>
+		<Relevance>exist main gather service and not exist relay service</Relevance>
+		<Source>Internal</Source>
+		<SourceReleaseDate>2026-03-12</SourceReleaseDate>
+		<MIMEField>
+			<Name>x-fixlet-modification-time</Name>
+			<Value>Thu, 12 Mar 2026 15:38:24 +0000</Value>
+		</MIMEField>
+		<Domain>BESC</Domain>
+		<Property Name="Scheduled Tasks" ID="7" EvaluationPeriod="PT1H"><![CDATA[("NAME: " & item 0 of it, "ENABLED: " & item 1 of it as string, "NEXT RUN TIME: " & item 2 of it as string,  "LAST RUN TIME: " & item 3 of it as string, "LAST RESULT: " & (if (item 4 of it = 0) then "OK" else "ERROR")) of ((names of it, enabled of it, next run times of it, last run times of it, last task results of it) of scheduled tasks whose (name of it as lowercase starts with "sitecacher_"))]]></Property>
+	</Analysis>
+</BES>
