@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="BES.xsd">
+	<Analysis>
+		<Title>BigBrother</Title>
+		<Description><![CDATA[<P><STRONG><FONT size=2>Additional info on the Location Info property:</FONT></STRONG><BR><BR><STRONG>Latitude</STRONG> - Gets or sets the latitude of the GeoCoordinate.<BR><STRONG>Longitude</STRONG> - Gets or sets the longitude of the GeoCoordinate.<BR><STRONG>Altitude</STRONG> - Gets the altitude of the GeoCoordinate, in meters.<BR><STRONG>HorizontalAccuracy</STRONG> - Gets or sets the accuracy of the latitude and longitude that is given by the GeoCoordinate, in meters.<BR><STRONG>VerticalAccuracy</STRONG> - Gets or sets the accuracy of the altitude given by the GeoCoordinate, in meters.<BR><STRONG>Speed</STRONG> - Gets or sets the speed in meters per second.<BR><STRONG>Course</STRONG> - Gets or sets the heading in degrees, relative to true north.<BR><STRONG>IsUnknown</STRONG> - Gets a value that indicates whether the GeoCoordinate does not contain latitude or longitude data. </P>
+<P>(Copy and paste the MAP URL into a browser)</P>]]></Description>
+		<Relevance>exist file "c:\windows\temp\bb" | false</Relevance>
+		<Source>Internal</Source>
+		<SourceReleaseDate>2024-07-12</SourceReleaseDate>
+		<MIMEField>
+			<Name>x-fixlet-modification-time</Name>
+			<Value>Sat, 13 Jul 2024 16:53:12 +0000</Value>
+		</MIMEField>
+		<Domain>BESC</Domain>
+		<Property Name="Location Info" ID="1">lines of file "c:\windows\temp\bb"</Property>
+		<Property Name="Accuracy" ID="3"><![CDATA["Approximate " & (following text of first "Horizontal" of (line whose (it contains "HorizontalAccuracy") of file "c:\windows\temp\bb") & " Meters")]]></Property>
+		<Property Name="MAP URL" ID="4"><![CDATA[("https://www.google.com/maps/place/" & concatenation " " of (substrings separated by "||Longitude          : " of (following text of first ": " of  (preceding text of first "||Altitude" of (concatenation "||" of (lines of file "c:\windows\temp\bb"))))))]]></Property>
+	</Analysis>
+</BES>
