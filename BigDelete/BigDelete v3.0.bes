@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="BES.xsd">
+	<Task>
+		<Title>BigDelete v3.0</Title>
+		<Description><![CDATA[<DIV id=fixletMessage2 class=FixletMessage>
+<DIV id=paramFixletDescription>
+<P>&nbsp;</P></DIV><script>
+		loaded = false;
+		var CODE_SITE_NAME = 'BES Support' ; 
+		function loadScript (siteName, callback) {
+		loaded = false;
+		var relevanceQuery ='( value of it) of (mime fields of (bes fixlets whose ( name of it = "Parameterized Fixlet Library" and  name of site of it = \"' + siteName + '\" ))) whose (name of it = "vrt_utils.js")'
+		var code = EvaluateRelevance(relevanceQuery);
+		var head = document.getElementsByTagName("head")[0]; 
+		var script   = document.createElement("script");
+		script.type  = "text/javascript";
+		script.text = code;
+		head.appendChild(script);
+		callback();
+		}
+		function scriptLoaded(){
+		if (!loaded){ 	
+		if ( typeof FixletUtils !== 'undefined') {
+		loaded = true;
+		/*
+		* Please Note: The following code will be moved to library with next publish of lib and user will have to only call method 	
+		*/
+		var relQuery = "(messages of it) of bes fixlets whose (name of it = \"Parameterized Fixlet Library\" and ((name of it ) of site of it = \"" + CODE_SITE_NAME +"\" ))";
+		var messages = EvaluateRelevance(relQuery);
+		var regex = /\s*<DIV id=globalizationMessageDiv  style="display:none;">([\x00-\x7F]+)\s*<\/Div>/i;
+		var matches = regex.exec(messages);
+		matches[1]=matches[1].replace(/<br>/gi,"");
+		eval(matches[1]);
+		FixletUtils.initFixletRender();
+		} } } 	
+		loadScript(CODE_SITE_NAME, scriptLoaded);
+		</script> 
+<DIV class=FixletProperty></DIV></DIV>]]></Description>
+		<Relevance>(windows of operating system) AND (exists main gather service)</Relevance>
+		<Category></Category>
+		<Source>michael.english@hcl-software.com</Source>
+		<SourceID></SourceID>
+		<SourceReleaseDate>2024-10-29</SourceReleaseDate>
+		<SourceSeverity></SourceSeverity>
+		<CVENames></CVENames>
+		<SANSID></SANSID>
+		<MIMEField>
+			<Name>parametermetadatatag</Name>
+			<Value>{   "MOpwd": {     "Name": "MOpwd",     "Title": "Credential:",      "Description": "Enter the password for the master operator account 'bfadmin'",     "UIType": "Textbox",     "Encrypt" : "true",     "SubUIType" : "Password",     "Required":"1" }     }</Value>
+		</MIMEField>
+		<MIMEField>
+			<Name>x-fixlet-modification-time</Name>
+			<Value>Fri, 10 Jul 2026 15:37:54 +0000</Value>
+		</MIMEField>
+		<Domain>PTCH</Domain>
+		<DefaultAction ID="Action1">
+			<Description>
+				<PreLink>Click </PreLink>
+				<Link>here</Link>
+				<PostLink> to deploy this action.</PostLink>
+			</Description>
+			<ActionScript MIMEType="application/x-Fixlet-Windows-Shell"><![CDATA[action parameter query "Operator" with description "Please enter the name of a Bigfix Operator" with default "bfadmin"
+action parameter query "RootURL" with description "Please enter the URL to the Root Server" with default "https://11.11.11.11:52311"
+action parameter query "nDays" with description "Please enter the age in days of the action(s) to be deleted" with default value "30"
+
+parameter "scriptFolder" = "{parent folder of data folder of client}\Action_Delete"
+parameter "scriptFile" = "{parent folder of data folder of client}\Action_Delete\securekey"
+
+if {not exists folder "(parent folder of data folder of client)\Action_Delete"}
+   folder create "{parent folder of data folder of client}\Action_Delete"
+endif
+delete __createfile
+delete "{parameter "ScriptFile"}"
+createfile until _EOF_
+[Byte[]] $key = (1..16)
+$Password = "{parameter "MOpwd"}" | ConvertTo-SecureString -AsPlainText -Force
+$Password | ConvertFrom-SecureString -key $key | Out-File "{parameter "ScriptFile"}"
+_EOF_
+delete "{parameter "ScriptFolder"}\encryptMO.ps1"
+move __createfile "{parameter "ScriptFolder"}\encryptMO.ps1"
+waithidden powershell -ExecutionPolicy Bypass -File "{parameter "ScriptFolder"}\encryptMO.ps1"
+delete "{parameter "ScriptFolder"}\encryptMO.ps1"
+
+parameter "psFile" = {"%22" & (parameter "scriptFolder") & "\ActionDelete.ps1" & "%22"}
+
+if {not exists folder (parameter "scriptFolder")}
+	folder create "{parameter "scriptFolder"}"
+endif
+
+delete __createfile
+createfile until _EOF_
+Set-Location -Path "{parameter "scriptFolder"}"
+#
+$key = @(1..16)
+$dataFile = "secureKey"
+$password = Get-Content $dataFile | ConvertTo-SecureString -Key $key
+$creds = New-Object System.Management.Automation.PSCredential ("{parameter "Operator"}", $password)
+add-type @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+#
+$qry = @"
+(IDs%20of%20BES%20Actions%20whose%20%28%28state%20of%20it%20as%20lowercase%20%3D%20%22expired%22%20OR%20state%20of%20it%20as%20lowercase%20%3D%20%22stopped%22%29%20AND%20%28%28%28time%20stopped%20of%20it%20%3C%3D%20%28now%20-{parameter "nDays" of action}%2Aday%29%29%20%7C%20false%29%20OR%20%28%28time%20issued%20of%20it%20-%20now%20%3C%3D%20-{parameter "nDays" of action}%2Aday%29%20%7C%20false%29%29%29)
+"@
+$BigFix_URL = "{parameter "RootURL"}"
+$URL = "$BigFix_URL/api/query?relevance=$qry"
+$responseQuery = (Invoke-RestMethod -Method GET -Uri $URL -Credential $creds).InnerXml
+$answerData = $responseQuery | Select-Xml -XPath "//Answer[@type = 'integer']"
+#
+$answerData.Node.'#text'
+foreach ($id in $answerData.Node.'#text') {
+$BigFix_URL = "{parameter "RootURL"}"
+$URL = "$BigFix_URL/api/action/$id"
+$responsePost = (Invoke-WebRequest -Method DELETE -Uri $URL -Credential $creds).InnerXml
+$responsePost
+#$answerData = $responseQuery | Select-Xml -XPath "//Answer[@type = 'string']"
+#Invoke-WebRequest -Method DELETE -Uri '{parameter "RootURL"}/api/action/$id'
+}
+_EOF_
+delete "{parameter "psFile"}"
+copy __createfile "{parameter "psFile"}"
+
+wait powershell.exe -ExecutionPolicy Bypass -File "{parameter "psFile"}"]]></ActionScript>
+			<SuccessCriteria Option="RunToCompletion"></SuccessCriteria>
+		</DefaultAction>
+	</Task>
+</BES>
