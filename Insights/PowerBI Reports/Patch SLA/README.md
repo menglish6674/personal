@@ -1,4 +1,4 @@
-# VM Standard Patch Management — Executive Dashboard
+# Patch Management — SLA — Executive Dashboard
 
 A Power BI report showing server patch compliance and mean time to patch, sourced
 directly from HCL BigFix Insights.
