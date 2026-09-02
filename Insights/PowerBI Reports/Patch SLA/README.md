@@ -57,6 +57,14 @@ afterwards: **Home → Transform data → Manage Parameters**
 | `AnchorDate` | Text | `2026-07-31` | Last day of the most recently closed month. Format must be `yyyy-MM-dd` |
 | `HistoryMonths` | Number | `13` | How many monthly periods to compute |
 | `WeeklySnapshots` | Number | `13` | How many weekly periods to compute |
+| `SeverityFilter` | Text | `critical,important` | Comma-separated patch severities to include. Blank = all severities. Case-insensitive. **Unrecognized values (typos) are silently ignored** — always verify spelling against real BigFix severity values. |
+
+**Warning: unrecognized values are silently ignored.** If you type `critical,n0taR3alSeverity`
+(typo), the filter returns Critical results only — the misspelled value contributes
+nothing and produces no error. Always double-check spelling against the actual
+severity values in your BigFix data. If the entire filter matches no severities,
+the report will show 100% compliance with zero patch events, which is a signal
+that the filter needs correcting.
 
 ### Finding your PatchSiteIds
 
